@@ -65,7 +65,11 @@ class EventStateChange(BaseEvent):
 
 class EventEveryTick(BaseEvent):
     name = 'Tick event'
-
+    def __init__(self, round_timer, timer):
+        self.round_timer = round_timer
+        self.timer = timer
+    def __str__(self):
+        return f'time: {self.timer}, round_timer: {self.round_timer}'
 
 class EventTimesUp(BaseEvent):
     name = "Time's Up event"

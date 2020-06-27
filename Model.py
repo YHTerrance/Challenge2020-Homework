@@ -84,6 +84,7 @@ class GameEngine:
             self.initialize()
 
         elif isinstance(event, EventEveryTick):
+            #print(event)
             cur_state = self.state_machine.peek()
             if cur_state == Const.STATE_MENU:
                 self.update_menu()
@@ -91,7 +92,7 @@ class GameEngine:
                 self.update_objects()
                 self.timer -= 1
                 self.round_timer -= 1
-                
+                #print(self.round_timer / Const.FPS)
                 if self.timer == 0:
                     self.ev_manager.post(EventTimesUp())
 
@@ -157,9 +158,13 @@ class GameEngine:
         self.timer = Const.GAME_LENGTH
         self.round_timer = Const.ROUND_LENGTH
         while self.running:
-            self.ev_manager.post(EventEveryTick())
+            self.ev_manager.post(EventEveryTick(self.round_timer, self.timer))
             self.clock.tick(Const.FPS)
             if self.distance_between_players() <= (2 * Const.PLAYER_RADIUS) ** 2:
+                if self.players[0].role == 1:
+                    self.players[0].score += 1
+                else:
+                    self.players[1].score += 1
                 self.players[0].reset_position_speed()
                 self.players[1].reset_position_speed()
             
@@ -170,6 +175,7 @@ class Player:
         self.role = player_id
         self.position = pg.Vector2(Const.PLAYER_INIT_POSITION[player_id]) # is a pg.Vector2
         self.speed = Const.SPEED_ATTACK if self.role == 1 else Const.SPEED_DEFENSE
+        self.score = 0
     
     def reset_position_speed(self):
         self.position = pg.Vector2(Const.PLAYER_INIT_POSITION[self.player_id]) # is a pg.Vector2

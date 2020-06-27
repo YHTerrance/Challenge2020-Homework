@@ -3,11 +3,11 @@ import pygame as pg
 # model
 FPS = 60 # frame per second
 GAME_LENGTH = 30 * FPS * 100
-ROUND_LENGTH =  FPS / 2
+ROUND_LENGTH =  10 * FPS
 PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400)]
 PLAYER_RADIUS = 75
-SPEED_ATTACK = 100 * 6
-SPEED_DEFENSE = 70 * 6
+SPEED_ATTACK = 100
+SPEED_DEFENSE = 70
 DIRECTION_TO_VEC2 = {
     'up': pg.Vector2(0, -1),
     'left': pg.Vector2(-1, 0),
@@ -30,6 +30,8 @@ ARENA_SIZE = (800, 800)
 BACKGROUND_COLOR = pg.Color('black')
 PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta')]
 PLAYER_ROLE = ["defender", "attacker"]
+TRANSPARENT_ALPHA = 0.6
+
 
 # controller
 PLAYER_KEYS = {
