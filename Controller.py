@@ -47,7 +47,7 @@ class Controller:
             cur_state = self.model.state_machine.peek()
             if cur_state == Const.STATE_MENU: self.ctrl_menu(key_down_events)
             if cur_state == Const.STATE_PLAY: self.ctrl_play(key_down_events)
-            if cur_state == Const.STATE_STOP: self.ctrl_stop(key_down_events)
+            if cur_state == Const.STATE_PAUSE: self.ctrl_pause(key_down_events)
             if cur_state == Const.STATE_ENDGAME: self.ctrl_endgame(key_down_events)
 
     def ctrl_menu(self, key_down_events):
@@ -58,8 +58,15 @@ class Controller:
     def ctrl_play(self, key_down_events):
         keys = pg.key.get_pressed()
         for k, v in Const.PLAYER_KEYS.items():
-            if keys[k]:
+            if keys[pg.K_p]:
+                self.ev_manager.post(EventStateChange(Const.STATE_PAUSE))
+            elif keys[k]:
                 self.ev_manager.post(EventPlayerMove(*v))
+
+    def ctrl_pause(self, key_down_events):
+        for event_pg in key_down_events:
+            if event_pg.type == pg.KEYDOWN and event_pg.key == pg.K_RETURN:
+                self.ev_manager.post(EventStateChange(Const.STATE_PLAY))
 
     def ctrl_stop(self, key_down_events):
         pass

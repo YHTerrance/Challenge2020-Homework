@@ -45,8 +45,12 @@ class GraphicalView:
             cur_state = self.model.state_machine.peek()
             if cur_state == Const.STATE_MENU: self.render_menu()
             elif cur_state == Const.STATE_PLAY: self.render_play()
-            elif cur_state == Const.STATE_STOP: self.render_stop()
+            elif cur_state == Const.STATE_PAUSE: self.render_pause()
             elif cur_state == Const.STATE_ENDGAME: self.render_endgame()
+        
+        elif isinstance(event, EventSwitchRoles):
+            self.render_play();
+    
 
     def display_fps(self):
         '''
@@ -71,17 +75,30 @@ class GraphicalView:
         self.screen.fill(Const.BACKGROUND_COLOR)
 
         # draw players
+        font = pg.font.Font(None, 24)
         for player in self.model.players:
             center = list(map(int, player.position))
             pg.draw.circle(self.screen, Const.PLAYER_COLOR[player.player_id], center, Const.PLAYER_RADIUS)
-
+            text_surface = font.render(Const.PLAYER_ROLE[player.role], 0, pg.Color('black'))
+            self.screen.blit(text_surface, text_surface.get_rect(center = center))
         pg.display.flip()
 
-    def render_stop(self):
-        pass
+    def render_pause(self):
+        self.screen.fill(Const.BACKGROUND_COLOR)
+        font = pg.font.Font(None, 40)
+        text_surface = font.render("Game Paused. Press Enter to continue", 0, pg.Color('gray88'))
+        text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2)
+        self.screen.blit(text_surface, text_surface.get_rect(center = text_center))
+        
+        pg.display.flip()
 
     def render_endgame(self):
+        
         # draw background
         self.screen.fill(Const.BACKGROUND_COLOR)
-
-        pg.display.flip()
+        # draw text
+        font = pg.font.Font("None", 36)
+        text_surface = font.render("Game Over Player 1 Wins", 1, pg.Color('gray88'))
+        text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2)
+        self.screen.blit(text_surface, text_surface.get_rect(center = text_center))
+        pg.display.update()
