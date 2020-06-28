@@ -51,7 +51,7 @@ class GraphicalView:
             elif cur_state == Const.STATE_ENDGAME: self.render_endgame()
         
         elif isinstance(event, EventSwitchRoles):
-            self.render_play();
+            self.render_play()
     
 
     def display_fps(self):
@@ -175,11 +175,46 @@ class GraphicalView:
 
     def render_endgame(self):
         
-        # draw background
+        s = pg.Surface(Const.WINDOW_SIZE)
+        s.set_alpha(100)
+        s.fill(Const.BACKGROUND_COLOR)
+
+        #draw tinted players
+        font = pg.font.Font(None, 24)
+        for player in self.model.players:
+            center = list(map(int, player.position))
+            pg.draw.circle(s, Const.PLAYER_COLOR[player.player_id], center, Const.PLAYER_RADIUS)
+            text_surface = font.render(Const.PLAYER_ROLE[player.role], 0, pg.Color('black'))
+            s.blit(text_surface, text_surface.get_rect(center = center))
+        
+        #draw counter
+        seconds = round(self.round_timer / Const.FPS, 2)
+        self.draw_timer(self.round_timer, s)
+        font = pg.font.Font(None, 24)
+        text_surface = font.render(f'{seconds}s', 0, pg.Color('white'))
+        s.blit(text_surface, text_surface.get_rect(center = (725, 75)))        
+
         self.screen.fill(Const.BACKGROUND_COLOR)
-        # draw text
-        font = pg.font.Font("None", 36)
-        text_surface = font.render("Game Over Player 1 Wins", 1, pg.Color('gray88'))
+        self.screen.blit(s, (0, 0))
+        font = pg.font.Font(None, 40)
+            
+        text_surface = font.render("Results", 1, pg.Color('gray88'))
+        text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2 - 50)
+        self.screen.blit(text_surface, text_surface.get_rect(center = text_center))
+
+        winner = "Green" if self.model.players[0].score > self.model.players[1].score else "Magenta"
+        
+        text_surface = font.render(f"{winner} Wins", 1, pg.Color('gray88'))
         text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2)
         self.screen.blit(text_surface, text_surface.get_rect(center = text_center))
+
+        text_surface = font.render("Press [R] to restart game", 1, pg.Color('gray88'))
+        text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2 + 50)
+        self.screen.blit(text_surface, text_surface.get_rect(center = text_center))
+
+        text_surface = font.render("Press [Q] to quit game", 1, pg.Color('gray88'))
+        text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2 + 100)
+        self.screen.blit(text_surface, text_surface.get_rect(center = text_center))
+        
+
         pg.display.update()

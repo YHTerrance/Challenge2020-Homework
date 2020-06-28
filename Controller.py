@@ -68,8 +68,10 @@ class Controller:
             if event_pg.type == pg.KEYDOWN and event_pg.key == pg.K_RETURN:
                 self.ev_manager.post(EventStateChange(Const.STATE_PLAY))
 
-    def ctrl_stop(self, key_down_events):
-        pass
-
     def ctrl_endgame(self, key_down_events):
-        pass
+        for event_pg in key_down_events:
+            if event_pg.type == pg.KEYDOWN: 
+                if event_pg.key == pg.K_r:
+                    self.ev_manager.post(EventRestart())
+                if event_pg.key == pg.K_q:
+                    self.ev_manager.post(EventQuit())

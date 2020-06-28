@@ -92,18 +92,26 @@ class GameEngine:
                 self.update_objects()
                 self.timer -= 1
                 self.round_timer -= 1
-                #print(self.round_timer / Const.FPS)
                 if self.timer == 0:
                     self.ev_manager.post(EventTimesUp())
 
                 if self.round_timer == 0:
                     self.round_timer = Const.ROUND_LENGTH
                     self.switch_roles()
+                if self.collision():
+                    if self.players[0].role == 1:
+                        self.players[0].score += 1
+                    else:
+                        self.players[1].score += 1
+                    if self.players[0].score >= 3 or self.players[1].score >= 3:
+                        self.ev_manager.post(EventEndGame())
+                    else:
+                        self.players[0].reset_position_speed()
+                        self.players[1].reset_position_speed()
 
-            elif cur_state == Const.STATE_ENDGAME:
-                self.update_endgame()
+                elif cur_state == Const.STATE_ENDGAME:
+                    self.update_endgame()
             
-
         elif isinstance(event, EventStateChange):
             if event.state == Const.STATE_POP:
                 if self.state_machine.pop() is None:
@@ -119,6 +127,13 @@ class GameEngine:
 
         elif isinstance(event, EventTimesUp):
             self.state_machine.push(Const.STATE_ENDGAME)
+
+        elif isinstance(event, EventEndGame):
+            self.state_machine.push(Const.STATE_ENDGAME)
+
+        elif isinstance(event, EventRestart):
+            self.state_machine = StateMachine()
+            self.initialize()
 
     def update_menu(self):
         '''
@@ -145,9 +160,13 @@ class GameEngine:
             player.role = (player.role + 1) % 2
             player.speed = Const.SPEED_ATTACK if player.role == 1 else Const.SPEED_DEFENSE
 
+    def collision(self):
+        return self.distance_between_players() <= (2 * Const.PLAYER_RADIUS) ** 2
+
     def distance_between_players(self):
         return (self.players[0].position.x - self.players[1].position.x) ** 2 + (self.players[0].position.y - self.players[1].position.y) ** 2
 
+    
     def run(self):
         '''
         The main loop of the game is in this function.
@@ -159,14 +178,9 @@ class GameEngine:
         self.round_timer = Const.ROUND_LENGTH
         while self.running:
             self.ev_manager.post(EventEveryTick(self.round_timer, self.timer))
-            self.clock.tick(Const.FPS)
-            if self.distance_between_players() <= (2 * Const.PLAYER_RADIUS) ** 2:
-                if self.players[0].role == 1:
-                    self.players[0].score += 1
-                else:
-                    self.players[1].score += 1
-                self.players[0].reset_position_speed()
-                self.players[1].reset_position_speed()
+            self.clock.tick(Const.MAX_FPS)
+            Const.FPS = self.clock.get_fps()
+                
             
 
 class Player:
@@ -189,5 +203,13 @@ class Player:
         '''
         self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
         # clipping
-        self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+        self.position.x = max(-0.1, min(Const.ARENA_SIZE[0] + 0.1, self.position.x))
+        self.position.y = max(-0.1, min(Const.ARENA_SIZE[1] + 0.1, self.position.y))
+        if self.position.x >= Const.ARENA_SIZE[0]:
+            self.position.x -= Const.ARENA_SIZE[0]
+        if self.position.x <= 0:
+            self.position.x += Const.ARENA_SIZE[0]
+        if self.position.y >= Const.ARENA_SIZE[1]:
+            self.position.y -= Const.ARENA_SIZE[1]
+        if self.position.y <= 0:
+            self.position.y += Const.ARENA_SIZE[1]        

@@ -1,6 +1,7 @@
 import pygame as pg
 
 # model
+MAX_FPS = 30
 FPS = 60 # frame per second
 GAME_LENGTH = 30 * FPS * 100
 ROUND_LENGTH =  10 * FPS

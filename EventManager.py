@@ -90,3 +90,9 @@ class EventPlayerCollision(BaseEvent):
     
 class EventSwitchRoles(BaseEvent):
     name = 'Players Switch Roles Event'
+
+class EventEndGame(BaseEvent):
+    name = 'One Player Wins Event'
+
+class EventRestart(BaseEvent):
+    name = 'Game Restarts'
